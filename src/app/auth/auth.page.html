@@ -1,0 +1,172 @@
+<ion-header class="auth-header">
+  <ion-toolbar>
+    <div class="logo-container">
+      <img src="assets/icon/logo.png" alt="Logo" class="auth-logo" />
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="mccann-yellow">
+  <ion-tabs #tabs>
+    <!-- Login Tab Content -->
+    <ion-tab tab="login">
+      <div class="auth-container">
+        <ion-card class="auth-card">
+          <ion-card-header>
+            <ion-card-title class="auth-title">
+              <ion-icon name="log-in"></ion-icon>
+              Login
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()">
+              <ion-item class="form-item">
+                <!-- <ion-label position="floating">Email</ion-label> -->
+                <ion-input
+                  label="Email"
+                  labelPlacement="floating"
+                  type="email"
+                  formControlName="email"
+                  placeholder="Enter your email"
+                ></ion-input>
+              </ion-item>
+              <div class="error-message" *ngIf="getFieldError(loginForm, 'email')">
+                {{ getFieldError(loginForm, 'email') }}
+              </div>
+
+              <ion-item class="form-item">
+                <ion-input
+                  label="Password"
+                  labelPlacement="floating"
+                  type="password"
+                  formControlName="password"
+                  placeholder="Enter your password"
+                ></ion-input>
+              </ion-item>
+              <div class="error-message" *ngIf="getFieldError(loginForm, 'password')">
+                {{ getFieldError(loginForm, 'password') }}
+              </div>
+
+              <div class="error-message" *ngIf="loginError">
+                {{ loginError }}
+              </div>
+
+              <ion-button
+                expand="block"
+                type="submit"
+                class="submit-button"
+                [disabled]="loginForm.invalid || loginLoading"
+              >
+                <span *ngIf="!loginLoading">Login</span>
+                <ion-spinner *ngIf="loginLoading" name="crescent"></ion-spinner>
+              </ion-button>
+            </form>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </ion-tab>
+
+    <!-- Register Tab Content -->
+    <ion-tab tab="register">
+      <div class="auth-container">
+        <ion-card class="auth-card">
+          <ion-card-header>
+            <ion-card-title class="auth-title">
+              <ion-icon name="person-add"></ion-icon>
+              Register
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <form [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()">
+              <ion-item class="form-item">
+                <ion-input
+                  label="Full Name"
+                  labelPlacement="floating"
+                  type="text"
+                  formControlName="name"
+                  placeholder="Enter your full name"
+                ></ion-input>
+              </ion-item>
+              <div class="error-message" *ngIf="getFieldError(registerForm, 'name')">
+                {{ getFieldError(registerForm, 'name') }}
+              </div>
+
+              <ion-item class="form-item">
+                <ion-input
+                  label="Email"
+                  labelPlacement="floating"
+                  type="email"
+                  formControlName="email"
+                  placeholder="Enter your email"
+                ></ion-input>
+              </ion-item>
+              <div class="error-message" *ngIf="getFieldError(registerForm, 'email')">
+                {{ getFieldError(registerForm, 'email') }}
+              </div>
+
+              <ion-item class="form-item">
+                <ion-input
+                  label="Password"
+                  labelPlacement="floating"
+                  type="password"
+                  formControlName="password"
+                  placeholder="Enter your password"
+                ></ion-input>
+              </ion-item>
+              <div class="error-message" *ngIf="getFieldError(registerForm, 'password')">
+                {{ getFieldError(registerForm, 'password') }}
+              </div>
+
+              <ion-item class="form-item">
+                <ion-label position="floating">Role</ion-label>
+                <ion-select formControlName="role" placeholder="Select your role">
+                  <ion-select-option *ngFor="let role of roles" [value]="role.value">
+                    {{ role.label }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+              <div class="error-message" *ngIf="getFieldError(registerForm, 'role')">
+                {{ getFieldError(registerForm, 'role') }}
+              </div>
+
+              <ion-item class="form-item" *ngIf="operativeTypeVisible">
+                <ion-label position="floating">Operative Type</ion-label>
+                <ion-select formControlName="operative_type" placeholder="Select operative type">
+                  <ion-select-option *ngFor="let type of operativeTypes" [value]="type.value">
+                    {{ type.label }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+
+              <div class="error-message" *ngIf="registerError">
+                {{ registerError }}
+              </div>
+
+              <ion-button
+                expand="block"
+                type="submit"
+                class="submit-button"
+                [disabled]="registerForm.invalid || registerLoading"
+              >
+                <span *ngIf="!registerLoading">Register</span>
+                <ion-spinner *ngIf="registerLoading" name="crescent"></ion-spinner>
+              </ion-button>
+            </form>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </ion-tab>
+
+    <!-- Tab Bar -->
+    <ion-tab-bar slot="bottom" class="tab-bar">
+      <ion-tab-button tab="login" class="tab-button">
+        <ion-icon name="log-in"></ion-icon>
+        <ion-label>Login</ion-label>
+      </ion-tab-button>
+      <ion-tab-button tab="register" class="tab-button">
+        <ion-icon name="person-add"></ion-icon>
+        <ion-label>Register</ion-label>
+      </ion-tab-button>
+    </ion-tab-bar>
+  </ion-tabs>
+</ion-content>

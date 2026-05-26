@@ -1,0 +1,304 @@
+// McCann Brand Colors
+$mccann-yellow: #ffcd00;
+$mccann-black: #000000;
+$mccann-white: #ffffff;
+$error-color: #d32f2f;
+$success-color: #388e3c;
+
+// Breakpoints for responsive design
+$mobile-small: 320px;
+$mobile-medium: 375px;
+$mobile-large: 425px;
+
+// ============================================
+// 0. Auth header with logo
+// ============================================
+.auth-header {
+  --background: #{$mccann-yellow};
+  --border-bottom: 3px solid #{$mccann-black};
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.auth-logo {
+  height: 50px;
+  max-width: 150px;
+  object-fit: contain;
+
+  @media (max-width: #{$mobile-large}) {
+    height: 40px;
+  }
+}
+
+// ============================================
+// 1. Core layout – prevent expansion on input focus
+// ============================================
+ion-content {
+  --background: #{$mccann-yellow};
+  --keyboard-offset: 0px;    // Prevent keyboard from resizing viewport (iOS)
+  --overflow: hidden;        // Avoid extra scrollbars
+  padding: 0 !important;
+}
+
+ion-tabs {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;          // No overflow on container, each tab scrolls
+}
+
+ion-tab {
+  overflow-y: auto;
+  overscroll-behavior: contain;   // Prevents rubber-band effect that can cause expansion
+  padding-bottom: 70px;           // Space for tab bar
+  // Ensure the height is stable even when keyboard appears
+  @media (max-width: 768px) {
+    height: 100%;
+  }
+}
+
+// ============================================
+// 2. Auth container & card
+// ============================================
+.auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // Remove min-height to prevent container expansion when keyboard opens
+  height: auto;
+  padding: 20px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  background: #{$mccann-white};
+  margin: 0;
+  --background: #{$mccann-white};
+  height: auto;
+  max-height: none;          // Card should never expand beyond content
+
+  @media (max-width: #{$mobile-large}) {
+    border-radius: 8px;
+  }
+}
+
+ion-card-header {
+  padding: 24px 20px 16px;
+  border-bottom: 3px solid #{$mccann-yellow};
+}
+
+.auth-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #{$mccann-black};
+  text-align: center;
+  justify-content: center;
+  margin: 0;
+
+  ion-icon {
+    font-size: 28px;
+  }
+
+  @media (max-width: #{$mobile-medium}) {
+    font-size: 20px;
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+}
+
+ion-card-content {
+  padding: 24px 20px;
+}
+
+// ============================================
+// 3. Form elements
+// ============================================
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-item {
+  --background: #{$mccann-white};
+  --border-bottom: 2px solid #{$mccann-yellow};
+  --padding-bottom: 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  // Fix input focus not causing parent height changes
+  min-height: 56px;
+  height: auto;
+
+  ion-label {
+    color: #{$mccann-black};
+    font-weight: 500;
+  }
+
+  ion-input,
+  ion-select {
+    --color: #{$mccann-black};
+    --placeholder-color: #999999;
+    --placeholder-opacity: 0.8;
+
+    &::placeholder {
+      color: #999999;
+    }
+  }
+}
+
+.error-message {
+  color: #{$error-color};
+  font-size: 12px;
+  font-weight: 500;
+  margin: -8px 16px 12px 16px;
+  padding: 0 4px;
+  display: block;
+}
+
+.submit-button {
+  --background: #{$mccann-black};
+  --background-hover: #1a1a1a;
+  --background-activated: #0d0d0d;
+  --color: #{$mccann-yellow};
+  --color-hover: #{$mccann-yellow};
+  font-weight: 600;
+  font-size: 16px;
+  height: 48px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 12px;
+  transition: all 0.3s ease;
+
+  &:disabled {
+    --background: #cccccc;
+    --color: #666666;
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: #{$mobile-medium}) {
+    height: 44px;
+    font-size: 14px;
+  }
+}
+
+// ============================================
+// 4. Tab bar (sticky bottom)
+// ============================================
+.tab-bar {
+  --background: #{$mccann-white};
+  --border-color: #{$mccann-yellow};
+  border-top: 3px solid #{$mccann-yellow};
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+}
+
+.tab-button {
+  --color: #999999;
+  --color-selected: #{$mccann-black};
+  --background-focused: transparent;
+  --background-focused-opacity: 0;
+
+  ion-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+
+  ion-label {
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  &.tab-selected {
+    --color: #{$mccann-black};
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background-color: #{$mccann-yellow};
+    }
+  }
+}
+
+// ============================================
+// 5. Component overrides
+// ============================================
+::ng-deep {
+  .sc-ion-select-md-h {
+    --background: #{$mccann-white};
+    --color: #{$mccann-black};
+  }
+
+  .sc-ion-input-md-s > input {
+    color: #{$mccann-black};
+  }
+}
+
+ion-spinner {
+  --color: #{$mccann-yellow};
+}
+
+// ============================================
+// 6. Responsive adjustments (mobile & safe areas)
+// ============================================
+@media (max-width: 360px) {
+  .auth-container {
+    padding: 16px;
+  }
+  .auth-card {
+    border-radius: 6px;
+  }
+  ion-card-header {
+    padding: 20px 16px 12px;
+  }
+  ion-card-content {
+    padding: 20px 16px;
+  }
+  .auth-title {
+    font-size: 18px;
+    ion-icon {
+      font-size: 22px;
+    }
+  }
+  form {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  ion-tab {
+    padding-bottom: 80px;       // Extra room for tab bar on small devices
+  }
+  .auth-container {
+    padding: 16px;
+    align-items: flex-start;    // Prevent content from being squashed at top
+  }
+}
+
+// Safe area for notched iPhones
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  ion-tab {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  }
+}

@@ -35,3 +35,17 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+/**
+ * McCann Brand Colors
+ * Custom colors for the Backpack application
+ */
+:root {
+  --ion-color-mccann-yellow: #ffcd00;
+  --ion-color-mccann-black: #000000;
+  --ion-color-mccann-white: #ffffff;
+}
+
+ion-content[color="mccann-yellow"] {
+  --background: #ffcd00;
+}
