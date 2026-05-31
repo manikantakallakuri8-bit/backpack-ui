@@ -5,14 +5,11 @@ $mccann-white: #ffffff;
 $error-color: #d32f2f;
 $success-color: #388e3c;
 
-// Breakpoints for responsive design
 $mobile-small: 320px;
 $mobile-medium: 375px;
 $mobile-large: 425px;
 
-// ============================================
-// 0. Auth header with logo
-// ============================================
+
 .auth-header {
   --background: #{$mccann-yellow};
   --border-bottom: 3px solid #{$mccann-black};
@@ -36,13 +33,11 @@ $mobile-large: 425px;
   }
 }
 
-// ============================================
-// 1. Core layout – prevent expansion on input focus
-// ============================================
+
 ion-content {
   --background: #{$mccann-yellow};
-  --keyboard-offset: 0px;    // Prevent keyboard from resizing viewport (iOS)
-  --overflow: hidden;        // Avoid extra scrollbars
+  --keyboard-offset: 0px;    
+  --overflow: hidden;        
   padding: 0 !important;
 }
 
@@ -51,27 +46,22 @@ ion-tabs {
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow: hidden;          // No overflow on container, each tab scrolls
+  overflow: hidden;         
 }
 
 ion-tab {
   overflow-y: auto;
-  overscroll-behavior: contain;   // Prevents rubber-band effect that can cause expansion
-  padding-bottom: 70px;           // Space for tab bar
-  // Ensure the height is stable even when keyboard appears
+  overscroll-behavior: contain;   
+  padding-bottom: 70px;           
   @media (max-width: 768px) {
     height: 100%;
   }
 }
 
-// ============================================
-// 2. Auth container & card
-// ============================================
 .auth-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  // Remove min-height to prevent container expansion when keyboard opens
   height: auto;
   padding: 20px;
 }
@@ -85,7 +75,7 @@ ion-tab {
   margin: 0;
   --background: #{$mccann-white};
   height: auto;
-  max-height: none;          // Card should never expand beyond content
+  max-height: none;        
 
   @media (max-width: #{$mobile-large}) {
     border-radius: 8px;
@@ -124,9 +114,6 @@ ion-card-content {
   padding: 24px 20px;
 }
 
-// ============================================
-// 3. Form elements
-// ============================================
 form {
   display: flex;
   flex-direction: column;
@@ -139,7 +126,6 @@ form {
   --padding-bottom: 8px;
   border-radius: 4px;
   margin-bottom: 8px;
-  // Fix input focus not causing parent height changes
   min-height: 56px;
   height: auto;
 
@@ -197,9 +183,7 @@ form {
   }
 }
 
-// ============================================
-// 4. Tab bar (sticky bottom)
-// ============================================
+
 .tab-bar {
   --background: #{$mccann-white};
   --border-color: #{$mccann-yellow};
@@ -241,9 +225,6 @@ form {
   }
 }
 
-// ============================================
-// 5. Component overrides
-// ============================================
 ::ng-deep {
   .sc-ion-select-md-h {
     --background: #{$mccann-white};
@@ -259,9 +240,6 @@ ion-spinner {
   --color: #{$mccann-yellow};
 }
 
-// ============================================
-// 6. Responsive adjustments (mobile & safe areas)
-// ============================================
 @media (max-width: 360px) {
   .auth-container {
     padding: 16px;
@@ -288,15 +266,14 @@ ion-spinner {
 
 @media (max-width: 480px) {
   ion-tab {
-    padding-bottom: 80px;       // Extra room for tab bar on small devices
+    padding-bottom: 80px;       
   }
   .auth-container {
     padding: 16px;
-    align-items: flex-start;    // Prevent content from being squashed at top
+    align-items: flex-start;    
   }
 }
 
-// Safe area for notched iPhones
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   ion-tab {
     padding-bottom: calc(70px + env(safe-area-inset-bottom));

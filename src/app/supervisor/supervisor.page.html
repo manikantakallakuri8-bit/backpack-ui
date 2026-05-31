@@ -1,0 +1,784 @@
+<ion-header>
+  <ion-toolbar class="header-toolbar">
+    <ion-title class="header-title">Supervisor Dashboard</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()" class="logout-button">
+        <ion-icon slot="icon-only" name="log-out"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="supervisor-content">
+  <!-- Toggle Segment -->
+  <div class="segment-container">
+    <ion-segment
+      [(ngModel)]="selectedTab"
+      (ionChange)="onTabChange($event)"
+      class="custom-segment"
+    >
+      <ion-segment-button value="operatives" class="segment-button">
+        <ion-label>Operatives</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="jobs" class="segment-button">
+        <ion-label>Jobs</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="resources" class="segment-button">
+        <ion-label>Resources</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- OPERATIVES TAB -->
+  <div *ngIf="selectedTab === 'operatives'" class="tab-content">
+    <!-- Search Bar -->
+    <ion-searchbar
+      [(ngModel)]="operativeSearchText"
+      (ionInput)="onOperativeSearch($event)"
+      placeholder="Search operatives by name..."
+      class="search-bar"
+    ></ion-searchbar>
+
+    <!-- Add Operative Button -->
+    <div class="button-container">
+      <ion-button
+        (click)="openAddOperativeModal()"
+        class="add-button"
+        expand="block"
+      >
+        Add Operative
+      </ion-button>
+    </div>
+
+    <!-- Operatives List -->
+    <div class="list-container">
+      <ion-card
+        *ngFor="let operative of filteredOperatives"
+        class="operative-card"
+      >
+        <ion-card-content class="card-content">
+          <h2 class="operative-name">{{ operative.name }}</h2>
+          <p class="operative-email">{{ operative.email }}</p>
+
+          <div class="badge-container">
+            <ion-badge class="operative-type-badge">
+              {{ formatOperativeType(operative.operative_type) }}
+            </ion-badge>
+          </div>
+
+          <div class="pay-rate-container">
+            <div class="pay-rate-left">
+              <ion-text class="pay-rate-label">Pay Rate:</ion-text>
+              <ion-text class="pay-rate-value">
+                {{ getPayRateDisplay(operative.pay_rate) }}
+              </ion-text>
+            </div>
+            <ion-button
+              (click)="openEditPayModal(operative)"
+              class="edit-pay-button"
+              fill="clear"
+            >
+              <ion-icon slot="icon-only" name="pencil-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <div *ngIf="filteredOperatives.length === 0" class="empty-state">
+        <ion-text class="empty-state-text">No operatives found</ion-text>
+      </div>
+    </div>
+  </div>
+
+  <!-- JOBS TAB -->
+  <div *ngIf="selectedTab === 'jobs'" class="tab-content">
+    <!-- Search Bar -->
+    <ion-searchbar
+      [(ngModel)]="jobSearchText"
+      (ionInput)="onJobSearch($event)"
+      placeholder="Search jobs by title or location..."
+      class="search-bar"
+    ></ion-searchbar>
+
+    <!-- Create Job Button -->
+    <div class="button-container">
+      <ion-button (click)="openCreateJobModal()" class="add-button" expand="block">
+        Create Job
+      </ion-button>
+    </div>
+
+    <!-- Jobs List -->
+    <div class="list-container">
+      <ion-card *ngFor="let job of filteredJobs" class="job-card">
+        <ion-card-content class="card-content">
+          <h2 class="job-title">{{ job.title }}</h2>
+          <p class="job-location">📍 {{ job.location }}</p>
+
+          <div class="job-meta-container">
+            <div class="job-type-badge">
+              {{ formatJobType(job.job_type) }}
+            </div>
+
+            <ion-badge
+              [style.background-color]="getStatusBadgeColor(job.status)"
+              [style.color]="getStatusBadgeTextColor(job.status)"
+              class="status-badge"
+            >
+              {{ formatStatus(job.status) }}
+            </ion-badge>
+          </div>
+
+          <div class="operatives-count">
+            <ion-text class="operatives-label">Assigned Operatives:</ion-text>
+            <ion-text class="operatives-names">
+              {{ getAssignedOperativesText(job) }}
+            </ion-text>
+          </div>
+
+          <div class="job-actions">
+            <ion-button
+              (click)="openEditJobModal(job)"
+              class="action-button"
+              fill="clear"
+            >
+              <ion-icon slot="icon-only" name="pencil-outline"></ion-icon>
+            </ion-button>
+            <ion-button
+              (click)="openDeleteJobAlert(job)"
+              class="action-button delete-button"
+              fill="clear"
+            >
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <div *ngIf="filteredJobs.length === 0" class="empty-state">
+        <ion-text class="empty-state-text">No jobs found</ion-text>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESOURCES TAB -->
+  <div *ngIf="selectedTab === 'resources'" class="tab-content">
+    <!-- Sub-segment for Materials and Plant & Tools -->
+    <div class="sub-segment-container">
+      <ion-segment
+        [(ngModel)]="selectedResourceCategory"
+        (ionChange)="onResourceCategoryChange($event.detail.value)"
+        class="custom-segment"
+      >
+        <ion-segment-button value="material" class="segment-button">
+          <ion-label>Materials</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="plant_tool" class="segment-button">
+          <ion-label>Plant & Tools</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <!-- Add Resource Button -->
+    <div class="button-container">
+      <ion-button
+        (click)="openAddResourceModal()"
+        class="add-button"
+        expand="block"
+      >
+        Add Resource
+      </ion-button>
+    </div>
+
+    <!-- Materials Resources -->
+    <div *ngIf="selectedResourceCategory === 'material'" class="list-container">
+      <ion-card *ngFor="let resource of materialResources" class="job-card">
+        <ion-card-content class="card-content">
+          <div class="resource-header">
+            <h2 class="job-title">{{ resource.name }}</h2>
+            <div class="resource-actions">
+              <ion-button
+                (click)="openEditResourceModal(resource)"
+                class="action-button"
+                fill="clear"
+              >
+                <ion-icon slot="icon-only" name="pencil-outline"></ion-icon>
+              </ion-button>
+              <ion-button
+                (click)="openDeleteResourceAlert(resource)"
+                class="action-button delete-button"
+                fill="clear"
+              >
+                <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+
+          <div class="resource-details">
+            <div class="resource-detail-item">
+              <ion-text class="detail-label" style="color: white">Price per unit:</ion-text>
+              <ion-text class="detail-value" style="color: white">£{{ resource.price_per_unit.toFixed(2) }}</ion-text>
+            </div>
+            <div class="resource-detail-item">
+              <ion-text class="detail-label" style="color: white">Unit:</ion-text>
+              <ion-text class="detail-value" style="color: white">{{ resource.unit_label }}</ion-text>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <div *ngIf="materialResources.length === 0" class="empty-state">
+        <ion-text class="empty-state-text">No materials added</ion-text>
+      </div>
+    </div>
+
+    <!-- Plant & Tools Resources -->
+    <div *ngIf="selectedResourceCategory === 'plant_tool'" class="list-container">
+      <ion-card *ngFor="let resource of plantToolResources" class="job-card">
+        <ion-card-content class="card-content">
+          <div class="resource-header">
+            <h2 class="job-title">{{ resource.name }}</h2>
+            <div class="job-location">
+              <ion-button
+                (click)="openEditResourceModal(resource)"
+                class="action-button"
+                fill="clear"
+              >
+                <ion-icon slot="icon-only" name="pencil-outline"></ion-icon>
+              </ion-button>
+              <ion-button
+                (click)="openDeleteResourceAlert(resource)"
+                class="action-button delete-button"
+                fill="clear"
+              >
+                <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+
+          <div class="resource-details">
+            <div class="resource-detail-item">
+              <ion-text class="detail-label" style="color: white">Price per unit:</ion-text>
+              <ion-text class="detail-value" style="color: white">£{{ resource.price_per_unit.toFixed(2) }}</ion-text>
+            </div>
+            <div class="resource-detail-item">
+              <ion-text class="detail-label" style="color: white">Unit:</ion-text>
+              <ion-text class="detail-value" style="color: white">{{ resource.unit_label }}</ion-text>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <div *ngIf="plantToolResources.length === 0" class="empty-state">
+        <ion-text class="empty-state-text">No plant & tools added</ion-text>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <ion-loading
+    [isOpen]="isLoading"
+    message="Please wait..."
+  ></ion-loading>
+</ion-content>
+
+<!-- ADD OPERATIVE MODAL -->
+<ion-modal
+  [isOpen]="showAddOperativeModal"
+  (didDismiss)="closeAddOperativeModal()"
+  class="modal-full"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar class="modal-header">
+        <ion-title class="modal-title">Add Operative</ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="closeAddOperativeModal()"
+            class="close-button"
+          >
+            ✕
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="modal-content">
+      <form [formGroup]="addOperativeForm" class="form-container">
+        <!-- Name Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Name</ion-label>
+          <ion-input
+            formControlName="name"
+            type="text"
+            placeholder="Enter name"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Email Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Email</ion-label>
+          <ion-input
+            formControlName="email"
+            type="email"
+            placeholder="Enter email"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Password Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Password</ion-label>
+          <ion-input
+            formControlName="password"
+            type="password"
+            placeholder="Enter password"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Operative Type Select -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Operative Type</ion-label>
+          <ion-select
+            formControlName="operative_type"
+            placeholder="Select operative type"
+          >
+            <ion-select-option *ngFor="let type of operativeTypes" [value]="type">
+              {{ formatOperativeType(type) }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Hourly Pay Rate Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Hourly Pay Rate (£)</ion-label>
+          <ion-input
+            formControlName="pay_rate"
+            type="number"
+            placeholder="Enter hourly pay rate"
+            min="10"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Submit Button -->
+        <div class="form-button-container">
+          <ion-button
+            (click)="submitAddOperative()"
+            [disabled]="addOperativeForm.invalid || isLoading"
+            class="submit-button"
+            expand="block"
+          >
+            {{ isLoading ? 'Adding...' : 'Add Operative' }}
+          </ion-button>
+        </div>
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- CREATE JOB MODAL -->
+<ion-modal
+  [isOpen]="showCreateJobModal"
+  (didDismiss)="closeCreateJobModal()"
+  class="modal-full"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar class="modal-header">
+        <ion-title class="modal-title">Create Job</ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="closeCreateJobModal()"
+            class="close-button"
+          >
+            ✕
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="modal-content">
+      <form [formGroup]="createJobForm" class="form-container">
+        <!-- Title Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Job Title</ion-label>
+          <ion-input
+            formControlName="title"
+            type="text"
+            placeholder="Enter job title"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Location Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Location</ion-label>
+          <ion-input
+            formControlName="location"
+            type="text"
+            placeholder="Enter job location"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Job Type Select -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Job Type</ion-label>
+          <ion-select
+            formControlName="job_type"
+            placeholder="Select job type"
+          >
+            <ion-select-option *ngFor="let type of jobTypes" [value]="type">
+              {{ formatJobType(type) }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Description Textarea -->
+        <ion-item class="form-item textarea-item">
+          <ion-label position="floating">Description</ion-label>
+          <ion-textarea
+            formControlName="description"
+            placeholder="Enter job description"
+            rows="4"
+          ></ion-textarea>
+        </ion-item>
+
+        <!-- Assign Operatives Multiselect -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Assign Operatives</ion-label>
+          <ion-select
+            [value]="selectedOperativeIds"
+            (ionChange)="onOperativeSelectionChange($event)"
+            multiple
+            placeholder="Select operatives"
+          >
+            <ion-select-option *ngFor="let operative of operatives" [value]="operative.id">
+              {{ operative.name }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Submit Button -->
+        <div class="form-button-container">
+          <ion-button
+            (click)="submitCreateJob()"
+            [disabled]="createJobForm.invalid || isLoading"
+            class="submit-button"
+            expand="block"
+          >
+            {{ isLoading ? 'Creating...' : 'Create Job' }}
+          </ion-button>
+        </div>
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- EDIT PAY MODAL -->
+<ion-modal
+  [isOpen]="showEditPayModal"
+  (didDismiss)="closeEditPayModal()"
+  class="modal-full"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar class="modal-header">
+        <ion-title class="modal-title">Edit Pay Rate</ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="closeEditPayModal()"
+            class="close-button"
+          >
+            ✕
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="modal-content">
+      <div *ngIf="selectedOperativeForPay" class="form-container">
+        <ion-text class="operative-name-label">
+          {{ selectedOperativeForPay.name }}
+        </ion-text>
+
+        <form [formGroup]="editPayForm">
+          <!-- Pay Rate Input -->
+          <ion-item class="form-item">
+            <ion-label position="floating">Hourly Pay Rate (£)</ion-label>
+            <ion-input
+              formControlName="pay_rate"
+              type="number"
+              placeholder="Enter new pay rate"
+              min="10"
+            ></ion-input>
+          </ion-item>
+
+          <!-- Submit Button -->
+          <div class="form-button-container">
+            <ion-button
+              (click)="submitEditPay()"
+              [disabled]="editPayForm.invalid || isLoading"
+              class="submit-button"
+              expand="block"
+            >
+              {{ isLoading ? 'Saving...' : 'Save Pay Rate' }}
+            </ion-button>
+          </div>
+        </form>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- EDIT JOB MODAL -->
+<ion-modal
+  [isOpen]="showEditJobModal"
+  (didDismiss)="closeEditJobModal()"
+  class="modal-full"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar class="modal-header">
+        <ion-title class="modal-title">Edit Job</ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="closeEditJobModal()"
+            class="close-button"
+          >
+            ✕
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="modal-content">
+      <form [formGroup]="editJobForm" class="form-container">
+        <!-- Title Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Job Title</ion-label>
+          <ion-input
+            formControlName="title"
+            type="text"
+            placeholder="Enter job title"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Location Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Location</ion-label>
+          <ion-input
+            formControlName="location"
+            type="text"
+            placeholder="Enter job location"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Job Type Select -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Job Type</ion-label>
+          <ion-select
+            formControlName="job_type"
+            placeholder="Select job type"
+          >
+            <ion-select-option *ngFor="let type of jobTypes" [value]="type">
+              {{ formatJobType(type) }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Description Textarea -->
+        <ion-item class="form-item textarea-item">
+          <ion-label position="floating">Description</ion-label>
+          <ion-textarea
+            formControlName="description"
+            placeholder="Enter job description"
+            rows="4"
+          ></ion-textarea>
+        </ion-item>
+
+        <!-- Assign Operatives Multiselect -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Assign Operatives</ion-label>
+          <ion-select
+            [value]="selectedEditOperativeIds"
+            (ionChange)="onEditOperativeSelectionChange($event)"
+            multiple
+            placeholder="Select operatives"
+          >
+            <ion-select-option *ngFor="let operative of operatives" [value]="operative.id">
+              {{ operative.name }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Submit Button -->
+        <div class="form-button-container">
+          <ion-button
+            (click)="submitEditJob()"
+            [disabled]="editJobForm.invalid || isLoading"
+            class="submit-button"
+            expand="block"
+          >
+            {{ isLoading ? 'Updating...' : 'Update Job' }}
+          </ion-button>
+        </div>
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- DELETE JOB ALERT -->
+<ion-alert
+  [isOpen]="showDeleteJobAlert"
+  (didDismiss)="closeDeleteJobAlert()"
+  header="Confirm Delete"
+  message="Are you sure you want to delete this job?"
+  [buttons]="deleteJobAlertButtons"
+></ion-alert>
+
+<!-- ADD RESOURCE MODAL -->
+<ion-modal
+  [isOpen]="showAddResourceModal"
+  (didDismiss)="closeAddResourceModal()"
+  class="modal-full"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar class="modal-header">
+        <ion-title class="modal-title">Add Resource</ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="closeAddResourceModal()"
+            class="close-button"
+          >
+            ✕
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="modal-content">
+      <form [formGroup]="addResourceForm" class="form-container">
+        <!-- Resource Name Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Resource Name</ion-label>
+          <ion-input
+            formControlName="name"
+            type="text"
+            placeholder="Enter resource name"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Price per Unit Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Price per Unit (£)</ion-label>
+          <ion-input
+            formControlName="price_per_unit"
+            type="number"
+            placeholder="Enter price"
+            step="0.01"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Unit Label Input -->
+        <ion-item class="form-item">
+        <ion-label position="floating">Unit Label</ion-label>
+        <ion-select formControlName="unit_label" placeholder="Select unit type">
+          <ion-select-option value="per hour">Per Hour</ion-select-option>
+          <ion-select-option value="per item">Per Item</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+        <!-- Submit Button -->
+        <div class="form-button-container">
+          <ion-button
+            (click)="submitAddResource()"
+            [disabled]="addResourceForm.invalid || isLoading"
+            class="submit-button"
+            expand="block"
+          >
+            {{ isLoading ? 'Adding...' : 'Add Resource' }}
+          </ion-button>
+        </div>
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- EDIT RESOURCE MODAL -->
+<ion-modal
+  [isOpen]="showEditResourceModal"
+  (didDismiss)="closeEditResourceModal()"
+  class="modal-full"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar class="modal-header">
+        <ion-title class="modal-title">Edit Resource</ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="closeEditResourceModal()"
+            class="close-button"
+          >
+            ✕
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="modal-content">
+      <form [formGroup]="editResourceForm" class="form-container">
+        <!-- Resource Name Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Resource Name</ion-label>
+          <ion-input
+            formControlName="name"
+            type="text"
+            placeholder="Enter resource name"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Price per Unit Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Price per Unit (£)</ion-label>
+          <ion-input
+            formControlName="price_per_unit"
+            type="number"
+            placeholder="Enter price"
+            step="0.01"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Unit Label Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Unit Label</ion-label>
+          <ion-item class="form-item">
+            <ion-label position="floating">Unit Label</ion-label>
+            <ion-select formControlName="unit_label" placeholder="Select unit type">
+              <ion-select-option value="per hour">Per Hour</ion-select-option>
+              <ion-select-option value="per item">Per Item</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-item>
+
+        <!-- Submit Button -->
+        <div class="form-button-container">
+          <ion-button
+            (click)="submitEditResource()"
+            [disabled]="editResourceForm.invalid || isLoading"
+            class="submit-button"
+            expand="block"
+          >
+            {{ isLoading ? 'Updating...' : 'Update Resource' }}
+          </ion-button>
+        </div>
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- DELETE RESOURCE ALERT -->
+<ion-alert
+  [isOpen]="showDeleteResourceAlert"
+  (didDismiss)="closeDeleteResourceAlert()"
+  header="Confirm Delete"
+  message="Are you sure you want to delete this resource?"
+  [buttons]="deleteResourceAlertButtons"
+></ion-alert>
