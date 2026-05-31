@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://backpack-be-production-f592.up.railway.app'
+  apiUrl: 'http://3.89.122.171'
 };
