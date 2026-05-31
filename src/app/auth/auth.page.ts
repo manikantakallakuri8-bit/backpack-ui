@@ -39,16 +39,15 @@ import { AuthService } from '../services/auth.service';
     IonHeader,
     IonToolbar,
     IonTabs,
-    IonTabBar,
-    IonTabButton,
-    IonLabel,
+    // IonTabBar,
+    // IonTabButton,
+    // IonLabel,
     IonTab,
     IonItem,
     IonInput,
     IonButton,
-    IonSelect,
-    IonSelectOption,
-    IonText,
+    // IonSelect,
+    // IonSelectOption,
     IonCard,
     IonCardContent,
     IonCardHeader,
@@ -70,7 +69,7 @@ export class AuthPage implements OnInit {
   registerError: string | null = null;
 
   roles = [
-    { label: 'Operative', value: 'operative' },
+    // { label: 'Operative', value: 'operative' },
     { label: 'Supervisor', value: 'supervisor' },
     { label: 'QS', value: 'qs' },
   ];
@@ -105,9 +104,9 @@ export class AuthPage implements OnInit {
     this.registerForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-      role: ['operative', Validators.required],
-      operative_type: ['street_lighting'],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      role: ['QS', Validators.required],
+      operative_type: [''],
     });
   }
 
@@ -138,7 +137,15 @@ export class AuthPage implements OnInit {
           color: 'success',
         });
         await toast.present();
-        this.router.navigate(['/home']);
+        if(response.role === 'supervisor') {
+          this.router.navigate(['/supervisor']);
+        } else if(response.role === 'operative') {
+          this.router.navigate(['/operative']);
+        } else if(response.role === 'qs') {
+          this.router.navigate(['/qs']);
+        } else {
+          this.router.navigate(['/home']);
+        }
       },
       error: async (error) => {
         this.loginLoading = false;
@@ -169,7 +176,6 @@ export class AuthPage implements OnInit {
       role: this.registerForm.get('role')?.value,
     };
 
-    // Only include operative_type if role is operative
     if (registerData.role === 'operative') {
       (registerData as any).operative_type = this.registerForm.get('operative_type')?.value;
     }

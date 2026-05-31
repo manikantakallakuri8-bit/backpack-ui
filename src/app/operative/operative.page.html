@@ -1,0 +1,367 @@
+<ion-header>
+  <ion-toolbar class="header-toolbar">
+    <ion-title class="header-title">My Jobs</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()" class="logout-button">
+        <ion-icon slot="icon-only" name="log-out"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="operative-content">
+  <!-- Jobs List -->
+  <div class="list-container">
+    <ion-card *ngFor="let job of jobs" class="job-card">
+      <ion-card-content class="card-content">
+        <h2 class="job-title">{{ job.title }}</h2>
+        <p class="job-location">📍 {{ job.location }}</p>
+
+        <div class="job-meta-container">
+          <div class="job-type-badge">
+            {{ formatJobType(job.job_type) }}
+          </div>
+
+          <ion-badge
+            [style.background-color]="getStatusBadgeColor(job.status)"
+            [style.color]="getStatusBadgeTextColor(job.status)"
+            class="status-badge"
+          >
+            {{ formatStatus(job.status) }}
+          </ion-badge>
+        </div>
+
+        <!-- Not Started State -->
+        <div *ngIf="job.status === 'not_started'" class="action-container">
+          <ion-button
+            (click)="startJob(job)"
+            class="start-button"
+            expand="block"
+            [disabled]="isLoading"
+          >
+            {{ isLoading ? 'Starting...' : 'Start Job' }}
+          </ion-button>
+        </div>
+
+        <!-- In Progress State -->
+        <div *ngIf="job.status === 'in_progress'" class="action-container">
+          <ion-button
+            (click)="openLogDetailsModal(job); $event.stopPropagation()"
+            class="log-button"
+            expand="block"
+            [disabled]="isLoading"
+          >
+            Log Details
+          </ion-button>
+          <ion-button
+            (click)="openCompleteJobAlert(job); $event.stopPropagation()"
+            class="complete-button"
+            expand="block"
+            [disabled]="isLoading"
+          >
+            {{ isLoading ? 'Completing...' : 'Complete Job' }}
+          </ion-button>
+        </div>
+
+        <!-- Completed State -->
+        <div *ngIf="job.status === 'completed'" class="action-container">
+          <ion-button
+            (click)="openLogDetailsModal(job)"
+            class="view-button"
+            expand="block"
+            disabled
+          >
+            View Details
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <div *ngIf="jobs.length === 0" class="empty-state">
+      <ion-text class="empty-state-text">No jobs assigned</ion-text>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <ion-loading
+    [isOpen]="isLoading"
+    message="Please wait..."
+  ></ion-loading>
+</ion-content>
+
+<!-- LOG DETAILS MODAL -->
+<ion-modal
+  [isOpen]="selectedJob !== null"
+  (didDismiss)="closeLogDetailsModal()"
+  class="modal-full"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar class="modal-header">
+        <ion-title class="modal-title">
+          {{ isReadOnly() ? 'View Job Details' : 'Log Job Details' }}
+        </ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="closeLogDetailsModal()"
+            class="close-button"
+          >
+            ✕
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="modal-content">
+      <form [formGroup]="logForm" class="form-container">
+        <!-- Vehicles Section -->
+        <div class="section">
+          <h3 class="section-title">Vehicles</h3>
+
+          <div formArrayName="vehicles" class="form-array">
+            <div
+              *ngFor="let vehicle of vehiclesArray.controls; let i = index"
+              [formGroupName]="i"
+              class="array-row"
+            >
+              <div class="row-inputs">
+                <ion-item class="form-item">
+                  <ion-label position="floating">Vehicle Type</ion-label>
+                  <ion-input
+                    formControlName="vehicle_type"
+                    type="text"
+                    placeholder="e.g., Van"
+                    [readonly]="isReadOnly()"
+                  ></ion-input>
+                </ion-item>
+
+                <ion-item class="form-item">
+                  <ion-label position="floating">Registration</ion-label>
+                  <ion-input
+                    formControlName="registration"
+                    type="text"
+                    placeholder="e.g., AB21 CDE"
+                    [readonly]="isReadOnly()"
+                  ></ion-input>
+                </ion-item>
+
+                <ion-item class="form-item">
+                  <ion-label position="floating">Arrival Time</ion-label>
+                  <ion-input
+                    formControlName="arrival_time"
+                    type="datetime-local"
+                    [readonly]="isReadOnly()"
+                  ></ion-input>
+                </ion-item>
+              </div>
+
+              <ion-button
+                *ngIf="!isReadOnly()"
+                (click)="removeVehicle(i)"
+                class="remove-button"
+                fill="clear"
+              >
+                <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+
+          <ion-button
+            *ngIf="!isReadOnly()"
+            (click)="addVehicle()"
+            class="add-button"
+            expand="block"
+          >
+            <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+            Add Vehicle
+          </ion-button>
+        </div>
+
+        <!-- Plant and Tools Section -->
+        <div class="section">
+          <h3 class="section-title">Plant & Tools</h3>
+
+          <div formArrayName="plant_items" class="form-array">
+            <div
+              *ngFor="let tool of plantToolsArray.controls; let i = index"
+              [formGroupName]="i"
+              class="array-row"
+            >
+              <div class="row-inputs">
+                <ion-item class="form-item">
+                  <ion-label position="floating">Item Name</ion-label>
+                  <ion-input
+                    formControlName="item_name"
+                    type="text"
+                    placeholder="e.g., Power Drill"
+                    [readonly]="isReadOnly()"
+                    (click)="!isReadOnly() && showPlantToolActionSheet(i)"
+                  ></ion-input>
+                </ion-item>
+
+                <ion-item class="form-item">
+                  <ion-label position="floating">Quantity</ion-label>
+                  <ion-input
+                    formControlName="quantity"
+                    type="number"
+                    placeholder="0"
+                    min="1"
+                    [readonly]="isReadOnly()"
+                  ></ion-input>
+                </ion-item>
+              </div>
+
+              <ion-button
+                *ngIf="!isReadOnly()"
+                (click)="removePlantTool(i)"
+                class="remove-button"
+                fill="clear"
+              >
+                <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+
+          <ion-button
+            *ngIf="!isReadOnly()"
+            (click)="addPlantTool()"
+            class="add-button"
+            expand="block"
+          >
+            <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+            Add Item
+          </ion-button>
+        </div>
+
+        <!-- Materials Section -->
+        <div class="section">
+          <h3 class="section-title">Materials</h3>
+
+          <div formArrayName="materials" class="form-array">
+            <div
+              *ngFor="let material of materialsArray.controls; let i = index"
+              [formGroupName]="i"
+              class="array-row"
+            >
+              <div class="row-inputs">
+                <ion-item class="form-item">
+                  <ion-label position="floating">Item Name</ion-label>
+                  <ion-input
+                    formControlName="item_name"
+                    type="text"
+                    placeholder="e.g., Copper Wire"
+                    [readonly]="isReadOnly()"
+                    (click)="!isReadOnly() && showMaterialActionSheet(i)"
+                  ></ion-input>
+                </ion-item>
+
+                <ion-item class="form-item">
+                  <ion-label position="floating">Quantity</ion-label>
+                  <ion-input
+                    formControlName="quantity"
+                    type="number"
+                    placeholder="0"
+                    min="1"
+                    [readonly]="isReadOnly()"
+                  ></ion-input>
+                </ion-item>
+              </div>
+
+              <ion-button
+                *ngIf="!isReadOnly()"
+                (click)="removeMaterial(i)"
+                class="remove-button"
+                fill="clear"
+              >
+                <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+
+          <ion-button
+            *ngIf="!isReadOnly()"
+            (click)="addMaterial()"
+            class="add-button"
+            expand="block"
+          >
+            <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+            Add Item
+          </ion-button>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="section">
+          <h3 class="section-title">Notes</h3>
+          <ion-item class="form-item textarea-item">
+            <ion-label position="floating">Additional Notes</ion-label>
+            <ion-textarea
+              formControlName="notes"
+              placeholder="Enter any additional notes..."
+              rows="4"
+              [readonly]="isReadOnly()"
+            ></ion-textarea>
+          </ion-item>
+        </div>
+
+        <!-- Log Out Time Section -->
+        <div *ngIf="!isReadOnly()" class="section">
+          <h3 class="section-title">Log Out Time</h3>
+          <ion-item class="form-item">
+            <ion-label position="floating">Log Out Time</ion-label>
+            <ion-input
+              formControlName="logout_time"
+              type="datetime-local"
+              [readonly]="isReadOnly()"
+            ></ion-input>
+          </ion-item>
+        </div>
+
+        <!-- Completed Job Info -->
+        <div *ngIf="isReadOnly() && selectedJob?.log" class="info-section">
+          <div class="info-row">
+            <ion-text class="info-label">Hours on Site:</ion-text>
+            <ion-text class="info-value">
+              {{ selectedJob!.log!.hours_on_site ? (selectedJob!.log!.hours_on_site.toFixed(2) + ' hrs') : 'N/A' }}
+            </ion-text>
+          </div>
+          <div class="info-row">
+            <ion-text class="info-label">Labour Cost:</ion-text>
+            <ion-text class="info-value">
+              {{ selectedJob!.log!.labour_cost ? ('£' + selectedJob!.log!.labour_cost.toFixed(2)) : 'N/A' }}
+            </ion-text>
+          </div>
+        </div>
+
+        <!-- Save Button -->
+        <div *ngIf="!isReadOnly()" class="form-button-container">
+          <ion-button
+            (click)="submitLogDetails()"
+            [disabled]="logForm.invalid || isLoading"
+            class="submit-button"
+            expand="block"
+          >
+            {{ isLoading ? 'Saving...' : 'Save Details' }}
+          </ion-button>
+        </div>
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- COMPLETE JOB ALERT -->
+<ion-alert
+  [isOpen]="showCompleteJobAlert"
+  (didDismiss)="closeCompleteJobAlert()"
+  header="Mark Job Complete"
+  message="Mark this job as complete? This cannot be undone."
+  [buttons]="completeJobAlertButtons"
+></ion-alert>
+
+<!-- Toast Notification -->
+<ion-toast
+  [isOpen]="showToast"
+  [message]="toastMessage"
+  [color]="toastColor"
+  position="bottom"
+  duration="3000"
+></ion-toast>

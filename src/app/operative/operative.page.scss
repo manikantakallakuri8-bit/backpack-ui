@@ -1,0 +1,382 @@
+$primary-black: #000000;
+$accent-yellow: #FFCD00;
+$text-white: #FFFFFF;
+$border-light: #333333;
+$text-light-gray: #cccccc;
+$success-green: #00cc00;
+$error-red: #ff6b6b;
+
+.operative-content {
+  --background: #{$primary-black};
+  --padding-bottom: 20px;
+}
+
+.header-toolbar {
+  --background: #{$primary-black};
+  --border-color: #{$accent-yellow};
+  border-bottom: 2px solid $accent-yellow;
+}
+
+.header-title {
+  color: $accent-yellow;
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.logout-button {
+  --color: #{$accent-yellow};
+
+  &:hover {
+    --color: #{$text-white};
+  }
+}
+
+.list-container {
+  padding: 16px;
+}
+
+.job-card {
+  --background: #{$border-light};
+  --border-radius: 8px;
+  border: 1px solid $accent-yellow;
+  margin-bottom: 16px;
+}
+
+.card-content {
+  padding: 16px;
+}
+
+.job-title {
+  color: $accent-yellow;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.job-location {
+  color: $text-light-gray;
+  margin: 0 0 12px 0;
+  font-size: 14px;
+}
+
+.job-meta-container {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+  flex-wrap: wrap;
+}
+
+.job-type-badge {
+  background-color: $accent-yellow;
+  color: $primary-black;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.action-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.start-button,
+.log-button,
+.complete-button,
+.view-button {
+  --border-radius: 8px;
+  font-weight: 600;
+  text-transform: none;
+  height: 44px;
+}
+
+.start-button {
+  --background: #{$accent-yellow};
+  --color: #{$primary-black};
+
+  &:hover:not(:disabled) {
+    --background: #e6b800;
+  }
+
+  &:disabled {
+    --background: #666666;
+    --color: #{$text-light-gray};
+    opacity: 0.6;
+  }
+}
+
+.log-button {
+  --background: #{$accent-yellow};
+  --color: #{$primary-black};
+
+  &:hover:not(:disabled) {
+    --background: #e6b800;
+  }
+
+  &:disabled {
+    --background: #666666;
+    --color: #{$text-light-gray};
+    opacity: 0.6;
+  }
+}
+
+.complete-button {
+  --background: #{$error-red};
+  --color: #{$text-white};
+
+  &:hover:not(:disabled) {
+    --background: #ff4444;
+  }
+
+  &:disabled {
+    --background: #666666;
+    --color: #{$text-light-gray};
+    opacity: 0.6;
+  }
+}
+
+.view-button {
+  --background: #999999;
+  --color: #{$text-white};
+
+  &:disabled {
+    opacity: 0.8;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-state-text {
+  color: $text-light-gray;
+  font-size: 16px;
+}
+
+.modal-full {
+  --width: 100%;
+  --height: 100%;
+  --border-radius: 0;
+}
+
+.modal-header {
+  --background: #{$primary-black};
+  --border-color: #{$accent-yellow};
+  border-bottom: 2px solid $accent-yellow;
+}
+
+.modal-title {
+  color: $accent-yellow;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.close-button {
+  --color: #{$accent-yellow};
+  font-size: 24px;
+
+  &:hover {
+    --color: #{$text-white};
+  }
+}
+
+.modal-content {
+  --background: #{$primary-black};
+  --padding-bottom: 40px;
+}
+
+.form-container {
+  padding: 16px;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  color: $accent-yellow;
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-array {
+  margin-bottom: 12px;
+}
+
+.array-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  align-items: flex-start;
+}
+
+.row-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.form-item {
+  --background: #{$border-light};
+  --border-color: #{$accent-yellow};
+  border: 1px solid $border-light;
+  border-radius: 4px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+
+  &.textarea-item {
+    --min-height: 120px;
+  }
+}
+
+ion-item {
+  --color: #{$text-white};
+
+  ion-label {
+    color: $text-light-gray;
+    font-size: 12px;
+  }
+
+  ion-input,
+  ion-textarea {
+    color: $text-white;
+
+    &::placeholder {
+      color: $text-light-gray;
+    }
+
+    &:disabled {
+      color: $text-light-gray;
+      opacity: 0.7;
+    }
+  }
+}
+
+.add-button {
+  --background: #{$accent-yellow};
+  --color: #{$primary-black};
+  --border-radius: 8px;
+  font-weight: 600;
+  text-transform: none;
+  height: 44px;
+  margin-top: 8px;
+
+  &:hover {
+    --background: #e6b800;
+  }
+
+  &:disabled {
+    --background: #666666;
+    --color: #{$text-light-gray};
+  }
+}
+
+.remove-button {
+  --color: #{$error-red};
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+
+  &:hover {
+    --color: #ff4444;
+  }
+}
+
+.form-button-container {
+  padding: 20px 0;
+}
+
+.submit-button {
+  --background: #{$accent-yellow};
+  --color: #{$primary-black};
+  --border-radius: 8px;
+  font-weight: 600;
+  text-transform: none;
+  height: 48px;
+
+  &:hover {
+    --background: #e6b800;
+  }
+
+  &:disabled {
+    --background: #666666;
+    --color: #{$text-light-gray};
+  }
+}
+
+.info-section {
+  background-color: #{$border-light};
+  border: 1px solid $accent-yellow;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #555555;
+    margin-bottom: 8px;
+  }
+}
+
+.info-label {
+  color: $text-light-gray;
+  font-size: 14px;
+}
+
+.info-value {
+  color: $accent-yellow;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+@media (min-width: 768px) {
+  .list-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 24px;
+  }
+
+  .row-inputs {
+    flex-direction: row;
+    gap: 12px;
+
+    .form-item {
+      flex: 1;
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  .list-container {
+    grid-template-columns: repeat(3, 1fr);
+    padding: 32px;
+  }
+
+  .row-inputs {
+    flex-direction: row;
+  }
+}

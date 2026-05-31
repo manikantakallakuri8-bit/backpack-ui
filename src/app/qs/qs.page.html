@@ -1,0 +1,384 @@
+<ion-header>
+  <ion-toolbar class="header-toolbar">
+    <ion-title class="header-title">QS Dashboard</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()" class="logout-button">
+        <ion-icon slot="icon-only" name="log-out"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="qs-content">
+  <!-- Main Segment Tabs -->
+  <div class="segment-container">
+    <ion-segment
+      [(ngModel)]="selectedTab"
+      (ionChange)="onTabChange($event)"
+      class="custom-segment"
+    >
+      <ion-segment-button value="completed_jobs" class="segment-button">
+        <ion-label>Completed Jobs</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="team" class="segment-button">
+        <ion-label>Team</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- COMPLETED JOBS TAB -->
+  <div *ngIf="selectedTab === 'completed_jobs'" class="tab-content">
+    <div class="list-container">
+      <ion-card *ngFor="let job of completedJobs" class="job-card" >
+        <ion-card-content class="card-content" >
+          <h2 class="job-title">{{ job.title }}</h2>
+          <p class="job-location">📍 {{ job.location }}</p>
+
+          <div class="job-meta-container">
+            <div class="job-type-badge">
+              {{ formatJobType(job.job_type) }}
+            </div>
+          </div>
+
+          <div class="operatives-section">
+            <ion-text class="operatives-label">Assigned Operatives:</ion-text>
+            <ion-text class="operatives-names">
+              {{ getOperativeNames(job.assigned_operatives) }}
+            </ion-text>
+          </div>
+
+          <ion-button
+            (click)="openCostSummaryModal(job)"
+            class="view-summary-button"
+            expand="block"
+          >
+            View Cost Summary
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <div *ngIf="completedJobs.length === 0" class="empty-state">
+        <ion-text class="empty-state-text">No completed jobs</ion-text>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEAM TAB -->
+  <div *ngIf="selectedTab === 'team'" class="tab-content">
+    <!-- Team Sub-Segment Tabs -->
+    <div class="sub-segment-container">
+      <ion-segment
+        [(ngModel)]="selectedTeamTab"
+        (ionChange)="onTeamTabChange($event)"
+        class="custom-segment"
+      >
+        <ion-segment-button value="operatives" class="segment-button">
+          <ion-label>Operatives</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="supervisors" class="segment-button">
+          <ion-label>Supervisors</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <!-- Operatives Sub-Tab -->
+    <div *ngIf="selectedTeamTab === 'operatives'" class="list-container">
+      <ion-card *ngFor="let operative of operatives" class="team-card">
+        <ion-card-content class="card-content">
+          <h2 class="team-name">{{ operative.name }}</h2>
+          <div class="team-meta-container">
+            <ion-badge class="type-badge">
+              {{ formatOperativeType(operative.operative_type) }}
+            </ion-badge>
+            <ion-text class="pay-rate">{{ getPayRateDisplay(operative.pay_rate) }}</ion-text>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <div *ngIf="operatives.length === 0" class="empty-state">
+        <ion-text class="empty-state-text">No operatives found</ion-text>
+      </div>
+    </div>
+
+    <!-- Supervisors Sub-Tab -->
+    <div *ngIf="selectedTeamTab === 'supervisors'" class="list-container">
+      <div class="button-container">
+        <ion-button
+          (click)="openAddSupervisorModal()"
+          class="add-button"
+          expand="block"
+        >
+          Add Supervisor
+        </ion-button>
+      </div>
+
+      <ion-card *ngFor="let supervisor of supervisors" class="team-card">
+        <ion-card-content class="card-content">
+          <h2 class="team-name">{{ supervisor.name }}</h2>
+          <p class="team-email">{{ supervisor.email }}</p>
+        </ion-card-content>
+      </ion-card>
+
+      <div *ngIf="supervisors.length === 0" class="empty-state">
+        <ion-text class="empty-state-text">No supervisors found</ion-text>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <ion-loading
+    [isOpen]="isLoading"
+    message="Please wait..."
+  ></ion-loading>
+</ion-content>
+
+<!-- COST SUMMARY MODAL -->
+<ion-modal
+  [isOpen]="showCostSummaryModal"
+  (didDismiss)="closeCostSummaryModal()"
+  class="modal-full"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar class="modal-header">
+        <ion-title class="modal-title">Cost Summary</ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="closeCostSummaryModal()"
+            class="close-button"
+          >
+            ✕
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="modal-content" *ngIf="selectedJob">
+      <!-- Job Header Section -->
+      <div class="summary-section header-section">
+        <h2 class="section-header-title" style="color: #FFCD00">{{ selectedJob.title }}</h2>
+        <p class="location-text" style="color:white">📍 {{ selectedJob.location }}</p>
+        <div class="job-type-info">
+          <ion-badge class="type-badge" style="color:white">{{ formatJobType(selectedJob.job_type) }}</ion-badge>
+        </div>
+
+        <div class="operatives-info">
+          <h5 class="info-heading" style="color:#FFCD00">Assigned Operatives</h5>
+          <div *ngFor="let operative of selectedJob.assigned_operatives" class="operative-row">
+            <span class="operative-name" style="color:white">{{ operative.name }}</span>
+            <!-- Note: pay rate would need to be fetched or included in job data -->
+          </div>
+        </div>
+
+        <div class="timing-info" *ngIf="selectedJob.log">
+          <div class="info-row">
+            <span class="info-label" style="color:white">Hours on Site:</span>
+            <span class="info-value" style="color:white">
+              {{ selectedJob.log!.hours_on_site ? (selectedJob.log!.hours_on_site | number:'1.2-2') + ' hrs' : 'N/A' }}
+            </span>
+          </div>
+          <div class="info-row" *ngIf="selectedJob.log!.vehicles && selectedJob.log!.vehicles.length > 0">
+            <span class="info-label" style="color:white">Arrival Time:</span>
+            <span class="info-value" style="color:white">{{ formatDateTime(selectedJob.log!.vehicles[0].arrival_time) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Labour Section -->
+      <div class="summary-section" *ngIf="selectedJob.log">
+        <h3 class="section-title">Labour</h3>
+        <div class="labour-calculation" *ngIf="selectedJob.log!.labour_cost !== undefined" style="color:white">
+          <span class="calc-text">
+            {{ selectedJob.log!.hours_on_site ? (selectedJob.log!.hours_on_site | number:'1.2-2') : '0' }} hrs ×
+            £{{ selectedJob.log!.labour_cost && selectedJob.log!.hours_on_site ? ((selectedJob.log!.labour_cost / selectedJob.log!.hours_on_site) | number:'1.2-2') : '0' }}/hr =
+            <strong class="calc-result">£{{ selectedJob.log!.labour_cost ? (selectedJob.log!.labour_cost | number:'1.2-2') : '0' }}</strong>
+          </span>
+        </div>
+      </div>
+
+      <!-- Plant & Tools Section -->
+      <div class="summary-section" *ngIf="selectedJob.log && selectedJob.log!.plant_items && selectedJob.log!.plant_items.length > 0">
+        <h3 class="section-title">Plant & Tools</h3>
+        <div class="table-container">
+          <div class="table-header">
+            <div class="table-cell header-cell">Item Name</div>
+            <div class="table-cell header-cell numeric">Qty</div>
+            <div class="table-cell header-cell numeric">Price/Unit</div>
+            <div class="table-cell header-cell numeric">Subtotal</div>
+          </div>
+          <div *ngFor="let item of selectedJob.log!.plant_items" class="table-row">
+            <div class="table-cell">{{ item.item_name }}</div>
+            <div class="table-cell numeric">{{ item.quantity }}</div>
+            <div class="table-cell numeric">£{{ item.price_per_unit | number:'1.2-2' }}</div>
+            <div class="table-cell numeric">£{{ (item.quantity * item.price_per_unit) | number:'1.2-2' }}</div>
+          </div>
+          <div class="table-footer">
+            <span class="footer-label">Section Total:</span>
+            <span class="footer-value">£{{ calculatePlantToolsTotal() | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Materials Section -->
+      <div class="summary-section" *ngIf="selectedJob.log && selectedJob.log!.materials && selectedJob.log!.materials.length > 0">
+        <h3 class="section-title">Materials</h3>
+        <div class="table-container">
+          <div class="table-header">
+            <div class="table-cell header-cell">Item Name</div>
+            <div class="table-cell header-cell numeric">Qty</div>
+            <div class="table-cell header-cell numeric">Price/Unit</div>
+            <div class="table-cell header-cell numeric">Subtotal</div>
+          </div>
+          <div *ngFor="let item of selectedJob.log!.materials" class="table-row">
+            <div class="table-cell">{{ item.item_name }}</div>
+            <div class="table-cell numeric">{{ item.quantity }}</div>
+            <div class="table-cell numeric">£{{ item.price_per_unit | number:'1.2-2' }}</div>
+            <div class="table-cell numeric">£{{ (item.quantity * item.price_per_unit) | number:'1.2-2' }}</div>
+          </div>
+          <div class="table-footer">
+            <span class="footer-label">Section Total:</span>
+            <span class="footer-value">£{{ calculateMaterialsTotal() | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vehicles Section -->
+      <div class="summary-section" *ngIf="selectedJob.log && selectedJob.log!.vehicles && selectedJob.log!.vehicles.length > 0">
+        <h3 class="section-title">Vehicles</h3>
+        <div class="vehicles-list">
+          <div *ngFor="let vehicle of selectedJob.log!.vehicles" class="vehicle-item">
+            <div class="vehicle-detail">
+              <span class="detail-label">Vehicle Type:</span>
+              <span class="detail-value">{{ vehicle.vehicle_type }}</span>
+            </div>
+            <div class="vehicle-detail">
+              <span class="detail-label">Registration:</span>
+              <span class="detail-value">{{ vehicle.registration }}</span>
+            </div>
+            <div class="vehicle-detail">
+              <span class="detail-label">Arrival Time:</span>
+              <span class="detail-value">{{ formatDateTime(vehicle.arrival_time) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Cost Section -->
+      <div class="total-cost-section">
+        <div class="total-breakdown">
+          <div class="breakdown-row" *ngIf="selectedJob.log && selectedJob.log!.labour_cost">
+            <span class="breakdown-label">Labour:</span>
+            <span class="breakdown-value">£{{ (selectedJob.log!.labour_cost | number:'1.2-2') }}</span>
+          </div>
+          <div class="breakdown-row" *ngIf="calculatePlantToolsTotal() > 0">
+            <span class="breakdown-label">Plant & Tools:</span>
+            <span class="breakdown-value">£{{ calculatePlantToolsTotal() | number:'1.2-2' }}</span>
+          </div>
+          <div class="breakdown-row" *ngIf="calculateMaterialsTotal() > 0">
+            <span class="breakdown-label">Materials:</span>
+            <span class="breakdown-value">£{{ calculateMaterialsTotal() | number:'1.2-2' }}</span>
+          </div>
+          <div class="breakdown-total">
+            <span class="total-label">TOTAL:</span>
+            <span class="total-value">£{{ calculateGrandTotal() | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="summary-section" *ngIf="selectedJob.log && selectedJob.log!.notes">
+        <h3 class="section-title">Notes</h3>
+        <p class="notes-text">{{ selectedJob.log!.notes }}</p>
+      </div>
+
+      <!-- AI Cost Analysis Section -->
+      <div class="summary-section ai-analysis-section" *ngIf="showCostSummaryModal">
+        <h3 class="section-title" style="color: #FFCD00">AI Cost Analysis</h3>
+        <div class="ai-analysis-card">
+          <ion-spinner *ngIf="isLoadingAI" name="crescent"></ion-spinner>
+          <p class="ai-analysis-text" *ngIf="!isLoadingAI && aiAnalysis" style="color: white">
+            {{ aiAnalysis }}
+          </p>
+        </div>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- ADD SUPERVISOR MODAL -->
+<ion-modal
+  [isOpen]="showAddSupervisorModal"
+  (didDismiss)="closeAddSupervisorModal()"
+  class="modal-full"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar class="modal-header">
+        <ion-title class="modal-title">Add Supervisor</ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="closeAddSupervisorModal()"
+            class="close-button"
+          >
+            ✕
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="modal-content">
+      <form [formGroup]="addSupervisorForm" class="form-container">
+        <!-- Name Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Name</ion-label>
+          <ion-input
+            formControlName="name"
+            type="text"
+            placeholder="Enter supervisor name"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Email Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Email</ion-label>
+          <ion-input
+            formControlName="email"
+            type="email"
+            placeholder="Enter email address"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Password Input -->
+        <ion-item class="form-item">
+          <ion-label position="floating">Password</ion-label>
+          <ion-input
+            formControlName="password"
+            type="password"
+            placeholder="Enter password (min 6 characters)"
+          ></ion-input>
+        </ion-item>
+
+        <!-- Submit Button -->
+        <div class="form-button-container">
+          <ion-button
+            (click)="submitAddSupervisor()"
+            [disabled]="addSupervisorForm.invalid || isLoading"
+            class="submit-button"
+            expand="block"
+          >
+            {{ isLoading ? 'Adding...' : 'Add Supervisor' }}
+          </ion-button>
+        </div>
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- Toast Notification -->
+<ion-toast
+  [isOpen]="showToast"
+  [message]="toastMessage"
+  [color]="toastColor"
+  position="bottom"
+  duration="3000"
+></ion-toast>
