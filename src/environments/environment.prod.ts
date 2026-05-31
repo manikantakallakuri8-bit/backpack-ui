@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://4.207.94.59'
+  apiUrl: 'https://backpackapp.duckdns.org'
 };
