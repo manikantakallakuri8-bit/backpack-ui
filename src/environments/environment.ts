@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://backpackapp.duckdns.org'
+  apiUrl: 'https://backpackapp.duckdns.org'
 };
 
 /*
